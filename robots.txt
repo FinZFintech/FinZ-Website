@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /assets/js/
+Disallow: /assets/policies/*-draft.pdf
 
-Sitemap: /sitemap.xml
+Sitemap: https://finz.finance/sitemap.xml
