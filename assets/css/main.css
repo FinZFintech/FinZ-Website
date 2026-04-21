@@ -68,6 +68,47 @@ p { margin: 0 0 1em; }
 }
 .compliance-ribbon strong { color: #fff; }
 
+/* Mobile: collapse into a single-line scrolling marquee.
+   JS inserts .compliance-track and duplicates content for seamless looping;
+   if JS hasn't run yet, the original two spans just scroll once. */
+@media (max-width: 720px) {
+  .compliance-ribbon { padding: 6px 0; }
+  .compliance-ribbon .container {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 0;
+    padding-right: 0;
+    position: relative;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+            mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  }
+  .compliance-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 28px;
+    padding-left: 16px;
+    animation: compliance-scroll 28s linear infinite;
+    will-change: transform;
+  }
+  .compliance-track > span { flex-shrink: 0; }
+  /* Fallback when JS hasn't wrapped contents */
+  .compliance-ribbon .container > span {
+    display: inline-block;
+    margin-right: 28px;
+  }
+}
+@keyframes compliance-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .compliance-track { animation: none; }
+  @media (max-width: 720px) {
+    .compliance-ribbon .container { overflow-x: auto; }
+  }
+}
+
 /* ---------------- Header ---------------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;

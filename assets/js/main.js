@@ -75,4 +75,39 @@
 
   // Year in footer
   document.querySelectorAll('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
+
+  // Mobile compliance-ribbon marquee: wrap content in a track and clone it
+  // once so the CSS animation loops seamlessly. Runs only below 720px.
+  (function setupComplianceMarquee() {
+    const ribbon = document.querySelector('.compliance-ribbon .container');
+    if (!ribbon) return;
+    const MOBILE = '(max-width: 720px)';
+    let wrapped = false;
+    let originalHTML = ribbon.innerHTML;
+
+    function wrap() {
+      if (wrapped) return;
+      const track = document.createElement('div');
+      track.className = 'compliance-track';
+      // Original content + a cloned copy → seamless 50% translate loop
+      track.innerHTML = originalHTML + originalHTML;
+      ribbon.innerHTML = '';
+      ribbon.appendChild(track);
+      wrapped = true;
+    }
+    function unwrap() {
+      if (!wrapped) return;
+      ribbon.innerHTML = originalHTML;
+      wrapped = false;
+    }
+
+    const mql = window.matchMedia(MOBILE);
+    (mql.matches ? wrap : unwrap)();
+    // Modern and legacy listener signatures
+    if (mql.addEventListener) {
+      mql.addEventListener('change', e => (e.matches ? wrap : unwrap)());
+    } else if (mql.addListener) {
+      mql.addListener(e => (e.matches ? wrap : unwrap)());
+    }
+  })();
 })();
