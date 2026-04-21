@@ -56,6 +56,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://finz.finance/financials-risk-disclosures.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://finz.finance/kfs.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
