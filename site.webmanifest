@@ -1,7 +1,7 @@
 {
   "name": "FinZ Finance Private Limited",
   "short_name": "FinZ Finance",
-  "description": "RBI-registered NBFC-MFI offering education, higher education and employee loans in India.",
+  "description": "RBI-registered NBFC-ICC offering education, higher education and employee loans in India.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

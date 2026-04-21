@@ -1,6 +1,6 @@
 # finz.finance — Marketing Website
 
-Static, mobile-first, SEO-optimised marketing site for **FinZ Finance Private Limited** — an RBI-registered NBFC-MFI.
+Static, mobile-first, SEO-optimised marketing site for **FinZ Finance Private Limited** — an RBI-registered NBFC-ICC.
 
 ## Stack
 
