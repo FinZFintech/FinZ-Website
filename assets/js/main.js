@@ -41,35 +41,54 @@
     if (hrefPath === currentPath) a.classList.add('is-active');
   });
 
-  // Simple EMI calculator on product pages (if present)
+  // EMI calculator on product pages. Output nodes live *outside* the
+  // <form> element, so scope the lookup to the nearest enclosing section
+  // (or document as a fallback). Also: clamp inputs to their min/max,
+  // reset outputs to em-dash on invalid input, and recompute on change.
   const emiForm = document.querySelector('[data-emi-form]');
   if (emiForm) {
+    const scope = emiForm.closest('section') || document;
     const principal = emiForm.querySelector('[name="principal"]');
     const rate = emiForm.querySelector('[name="rate"]');
     const tenure = emiForm.querySelector('[name="tenure"]');
-    const emiOut = emiForm.querySelector('[data-emi-output]');
-    const intOut = emiForm.querySelector('[data-interest-output]');
-    const totOut = emiForm.querySelector('[data-total-output]');
+    const emiOut = scope.querySelector('[data-emi-output]');
+    const intOut = scope.querySelector('[data-interest-output]');
+    const totOut = scope.querySelector('[data-total-output]');
+    const DASH = '—';
 
     function fmt(n) {
+      if (!isFinite(n) || n <= 0) return DASH;
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
     }
-
-    function recalc() {
-      const P = parseFloat(principal.value);
-      const R = parseFloat(rate.value);
-      const N = parseFloat(tenure.value);
-      if (!P || !R || !N) return;
-      const r = R / 12 / 100;
-      const emi = (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
-      const total = emi * N;
-      const interest = total - P;
+    function clamp(el) {
+      const v = parseFloat(el.value);
+      const min = el.min !== '' ? parseFloat(el.min) : -Infinity;
+      const max = el.max !== '' ? parseFloat(el.max) : Infinity;
+      if (!isFinite(v)) return NaN;
+      return Math.min(Math.max(v, min), max);
+    }
+    function setAll(emi, interest, total) {
       if (emiOut) emiOut.textContent = fmt(emi);
       if (intOut) intOut.textContent = fmt(interest);
       if (totOut) totOut.textContent = fmt(total);
     }
+    function recalc() {
+      const P = clamp(principal);
+      const R = clamp(rate);
+      const N = clamp(tenure);
+      if (!(P > 0) || !(R > 0) || !(N > 0)) { setAll(NaN, NaN, NaN); return; }
+      const r = R / 12 / 100;
+      const pow = Math.pow(1 + r, N);
+      const emi = (P * r * pow) / (pow - 1);
+      const total = emi * N;
+      const interest = total - P;
+      setAll(emi, interest, total);
+    }
 
     emiForm.addEventListener('input', recalc);
+    emiForm.addEventListener('change', recalc);
+    // Prevent accidental submission (it's a pure calculator, no backend)
+    emiForm.addEventListener('submit', function (e) { e.preventDefault(); });
     recalc();
   }
 
