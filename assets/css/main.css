@@ -515,15 +515,25 @@ section { padding: 56px 0; }
 }
 
 /* ---------------- Tables ---------------- */
-.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+}
 table {
   width: 100%; border-collapse: collapse; font-size: 14px;
+  color: var(--ink);
 }
 table caption { padding: 14px 16px; background: var(--bg-soft); text-align: left; font-weight: 600; color: var(--navy); }
-th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink); }
 th { background: var(--bg-soft); font-weight: 600; color: var(--navy); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: var(--bg-soft); }
+/* When a table sits inside a dark section, keep links inside cells readable */
+.bg-navy .table-wrap a { color: var(--teal-dark); }
+.bg-navy .table-wrap a:hover { color: var(--navy); }
 
 /* ---------------- Disclosure boxes ---------------- */
 .disclosure {
