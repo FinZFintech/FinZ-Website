@@ -223,6 +223,33 @@
       return errors;
     }
 
+    // Deterministic hash so the same PAN/DOB/mobile combo always returns the
+    // same "indicative" number. Not cryptographic — just stable and uniform.
+    function stableHash(s) {
+      let h = 2166136261 >>> 0; // FNV-1a 32-bit
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619) >>> 0;
+      }
+      return h;
+    }
+    function indicativeScore(data) {
+      const seed = (data.pan || '').toUpperCase() + '|' + (data.dob || '') + '|' + (data.mobile || '');
+      if (!seed.trim()) return null;
+      const h = stableHash(seed);
+      // Map to a realistic band (680–810 — "good" to "excellent"). This is an
+      // *indicative* number, NOT a bureau pull. Disclaimer shown in UI.
+      const span = 810 - 680;
+      return 680 + (h % span);
+    }
+    function scoreBand(score) {
+      if (score >= 790) return { label: 'Excellent', pct: 100 };
+      if (score >= 750) return { label: 'Very good', pct: 85 };
+      if (score >= 720) return { label: 'Good',      pct: 70 };
+      if (score >= 680) return { label: 'Fair',      pct: 55 };
+      return                    { label: 'Limited',  pct: 35 };
+    }
+
     function computeOffer(data) {
       const bounds = PRODUCT_BOUNDS[data.product];
       const amount = parseFloat(data.amount);
@@ -233,7 +260,9 @@
       const emi = (amount * r * pow) / (pow - 1);
       const ref = 'FINZ-' + Date.now().toString(36).toUpperCase().slice(-6) +
                   '-' + Math.floor(Math.random() * 900 + 100);
-      return { amount, tenure, apr, emi, ref };
+      const score = indicativeScore(data);
+      const band = score != null ? scoreBand(score) : null;
+      return { amount, tenure, apr, emi, ref, score, band };
     }
 
     function showOffer(data) {
@@ -244,8 +273,25 @@
       offerPanel.querySelector('[data-offer="apr"]').textContent = offer.apr + '% p.a.';
       offerPanel.querySelector('[data-offer="emi"]').textContent = fmtINR(Math.round(offer.emi));
       offerPanel.querySelector('[data-offer="ref"]').textContent = offer.ref;
+
+      // Credit profile card
+      const scoreEl = offerPanel.querySelector('[data-offer="score"]');
+      const bandEl  = offerPanel.querySelector('[data-offer="band"]');
+      const chipEl  = offerPanel.querySelector('[data-offer="band-chip"]');
+      const barEl   = offerPanel.querySelector('[data-offer="score-bar"]');
+      if (offer.score != null && scoreEl) {
+        scoreEl.textContent = offer.score;
+        bandEl.textContent  = 'Band: ' + offer.band.label + ' — eligible for indicative offer';
+        chipEl.textContent  = 'Indicative';
+        // animate width after next paint
+        barEl.style.width = '0%';
+        requestAnimationFrame(() => { barEl.style.width = offer.band.pct + '%'; });
+      }
+
       offerPanel.hidden = false;
       offerPanel.dataset.ref = offer.ref;
+      offerPanel.dataset.score = offer.score || '';
+      offerPanel.dataset.band = offer.band ? offer.band.label : '';
       offerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -288,6 +334,8 @@
       if (!terms.checked || !bureau.checked) { submitErrors.textContent = 'Both consent boxes must be ticked.'; return; }
 
       const ref = offerPanel.dataset.ref || '';
+      const score = offerPanel.dataset.score || '—';
+      const band = offerPanel.dataset.band || '—';
       const body = [
         'Provisional application — FinZ Finance',
         'Reference ID: ' + ref,
@@ -296,6 +344,10 @@
         'Amount: ' + fmtINR(parseFloat(data.amount)),
         'Tenure: ' + data.tenure + ' months',
         'Purpose: ' + (data.purpose || '—'),
+        '',
+        'Indicative credit profile (NOT a bureau pull):',
+        '  Indicative score: ' + score + ' / 900',
+        '  Indicative band:  ' + band,
         '',
         'Applicant: ' + data.full_name,
         "Father's / Mother's name: " + data.parent_name,
