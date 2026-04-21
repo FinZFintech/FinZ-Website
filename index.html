@@ -18,9 +18,20 @@
   <meta name="twitter:title" content="FinZ Finance Private Limited" />
   <meta name="twitter:description" content="RBI-registered NBFC-MFI offering education and employee loans." />
 
-  <meta name="theme-color" content="#1A1B5E" />
-  <link rel="icon" type="image/png" href="assets/images/favicon.png" />
-  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
+  <meta name="theme-color" content="#1A1B5E" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0B0C3A" media="(prefers-color-scheme: dark)" />
+
+  <!-- Favicons (same-origin, crawlable, multi-resolution — Google Search compliant) -->
+  <link rel="icon" href="favicon.ico" sizes="32x32" />
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="16x16"   href="assets/images/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32"   href="assets/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="48x48"   href="assets/images/favicon-48x48.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/images/favicon-512x512.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+  <link rel="mask-icon" href="assets/images/favicon.svg" color="#1A1B5E" />
+  <link rel="manifest" href="site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -106,33 +117,126 @@
   </header>
 
   <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <div>
-        <span class="pill pill-amber" style="background:rgba(248,180,0,0.18);color:#F8B400;">RBI Registered NBFC-MFI</span>
-        <h1>Fast, fair, fully digital lending — built for Bharat.</h1>
-        <p class="lede">FinZ Finance Private Limited offers education loans, higher education loans and employee loans with transparent pricing, paperless onboarding, and responsible lending practices aligned with the Reserve Bank of India's Digital Lending Guidelines.</p>
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-bg" aria-hidden="true">
+      <svg class="hero-grid" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,0.18)"/>
+          </pattern>
+          <radialGradient id="fade" cx="50%" cy="40%" r="65%">
+            <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="100%" stop-color="rgba(17,18,72,1)"/>
+          </radialGradient>
+        </defs>
+        <rect width="400" height="400" fill="url(#dots)"/>
+        <rect width="400" height="400" fill="url(#fade)"/>
+      </svg>
+      <span class="hero-blob hero-blob-1"></span>
+      <span class="hero-blob hero-blob-2"></span>
+      <span class="hero-blob hero-blob-3"></span>
+    </div>
+
+    <div class="container hero-container">
+      <div class="hero-text">
+        <span class="hero-pill">
+          <span class="hero-pill-dot" aria-hidden="true"></span>
+          RBI Registered NBFC-MFI &middot; CoR B.12.00530
+        </span>
+        <h1 id="hero-heading">
+          Fast, fair, fully digital lending &mdash;
+          <span class="hero-accent">built for Bharat.</span>
+        </h1>
+        <p class="lede">FinZ Finance offers education, higher education and employee loans with transparent pricing, paperless onboarding, and responsible practices aligned with the RBI's Digital Lending Guidelines and the DPDP Act, 2023.</p>
+
         <div class="actions">
-          <a class="btn btn-primary btn-lg" href="contact.html">Check Eligibility</a>
-          <a class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.4);" href="#products">Explore Products</a>
+          <a class="btn btn-primary btn-lg" href="contact.html">
+            Check Eligibility
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn-ghost-on-dark btn-lg" href="#products">Explore Products</a>
         </div>
-        <div class="trust-row">
-          <span><strong>100%</strong> Paperless</span>
-          <span><strong>24-72 hr</strong> Disbursal*</span>
-          <span><strong>No</strong> Hidden Fees</span>
-          <span><strong>RBI</strong> Compliant</span>
-        </div>
+
+        <dl class="hero-stats" aria-label="Key metrics">
+          <div><dt>Paperless</dt><dd>100%</dd></div>
+          <div><dt>Disbursal*</dt><dd>24&ndash;72 hr</dd></div>
+          <div><dt>Hidden fees</dt><dd>Zero</dd></div>
+          <div><dt>Grievance TAT</dt><dd>15 days</dd></div>
+        </dl>
       </div>
-      <aside class="hero-card" aria-label="Why FinZ">
-        <h3>Why borrowers choose FinZ</h3>
-        <ul>
-          <li>Transparent interest rates &amp; Key Fact Statement before sign-up</li>
-          <li>Secure eKYC via DigiLocker / Aadhaar XML</li>
-          <li>Flexible repayment through eNACH</li>
-          <li>Dedicated grievance redressal &amp; nodal officer</li>
-          <li>Data handled per RBI guidelines &amp; DPDP Act</li>
-        </ul>
+
+      <aside class="hero-visual" aria-label="Sample loan offer">
+        <div class="offer-card">
+          <header class="offer-card-head">
+            <span class="offer-chip">Education Loan &middot; Sample Offer</span>
+            <span class="offer-live">
+              <span class="offer-live-dot" aria-hidden="true"></span>
+              Illustrative
+            </span>
+          </header>
+
+          <div class="offer-amount">
+            <span class="offer-currency">&#8377;</span>
+            <span class="offer-value">5,00,000</span>
+          </div>
+          <p class="offer-sub">Approximate EMI &middot; 36-month tenure</p>
+
+          <ul class="offer-kv">
+            <li><span>Indicative APR</span><strong>13.49%</strong></li>
+            <li><span>EMI</span><strong>&#8377;16,958</strong></li>
+            <li><span>Processing fee</span><strong>1% + GST</strong></li>
+            <li><span>Cooling-off</span><strong>3 days</strong></li>
+          </ul>
+
+          <div class="offer-steps" aria-label="Journey">
+            <span class="step done">eKYC</span>
+            <span class="step done">KFS</span>
+            <span class="step done">eSign</span>
+            <span class="step">Disbursal</span>
+          </div>
+
+          <p class="offer-foot">Final terms disclosed in the Key Fact Statement before signing, per RBI Digital Lending Guidelines.</p>
+        </div>
+
+        <span class="float-chip float-chip-top" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="#14A9B0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          DPDP Act compliant
+        </span>
+        <span class="float-chip float-chip-bottom" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4Z" stroke="#F8B400" stroke-width="2" stroke-linejoin="round"/></svg>
+          eNACH secured
+        </span>
       </aside>
+    </div>
+
+    <div class="hero-marquee" aria-hidden="true">
+      <div class="hero-marquee-track">
+        <span>RBI Digital Lending Guidelines 2022</span>
+        <span>&bull;</span>
+        <span>Master Direction &mdash; NBFC-MFI</span>
+        <span>&bull;</span>
+        <span>Fair Practices Code</span>
+        <span>&bull;</span>
+        <span>Digital Personal Data Protection Act, 2023</span>
+        <span>&bull;</span>
+        <span>CERT-In Directions, 2022</span>
+        <span>&bull;</span>
+        <span>RBI Integrated Ombudsman Scheme, 2021</span>
+        <span>&bull;</span>
+        <!-- duplicated for seamless loop -->
+        <span>RBI Digital Lending Guidelines 2022</span>
+        <span>&bull;</span>
+        <span>Master Direction &mdash; NBFC-MFI</span>
+        <span>&bull;</span>
+        <span>Fair Practices Code</span>
+        <span>&bull;</span>
+        <span>Digital Personal Data Protection Act, 2023</span>
+        <span>&bull;</span>
+        <span>CERT-In Directions, 2022</span>
+        <span>&bull;</span>
+        <span>RBI Integrated Ombudsman Scheme, 2021</span>
+        <span>&bull;</span>
+      </div>
     </div>
   </section>
 

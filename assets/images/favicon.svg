@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FinZ Finance">
+  <defs>
+    <linearGradient id="fnz-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A1B5E"/>
+      <stop offset="100%" stop-color="#2C2E82"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#fnz-bg)"/>
+  <rect x="0" y="55" width="64" height="9" fill="#14A9B0"/>
+  <path d="M16 12 h26 v9 H25 v9 h14 v9 H25 v12 h-9 Z" fill="#FFFFFF"/>
+  <circle cx="47" cy="45" r="4.5" fill="#40C2C8"/>
+</svg>
