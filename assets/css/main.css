@@ -535,6 +535,21 @@ tbody tr:hover { background: var(--bg-soft); }
 .bg-navy .table-wrap a { color: var(--teal-dark); }
 .bg-navy .table-wrap a:hover { color: var(--navy); }
 
+/* Compact, scroll-free variant: content wraps instead of triggering
+   horizontal overflow. Use for tables with short cell content. */
+.table-wrap.table-fit { overflow-x: visible; }
+.table-wrap.table-fit table { table-layout: auto; }
+.table-wrap.table-fit th,
+.table-wrap.table-fit td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+@media (max-width: 560px) {
+  .table-wrap.table-fit th,
+  .table-wrap.table-fit td { padding: 10px 10px; font-size: 13px; }
+}
+
 /* ---------------- Disclosure boxes ---------------- */
 .disclosure {
   background: var(--bg-alt);
