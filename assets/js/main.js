@@ -95,6 +95,247 @@
   // Year in footer
   document.querySelectorAll('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
+  // Apply / Check Eligibility form
+  (function setupApplyForm() {
+    const form = document.getElementById('apply-form');
+    if (!form) return;
+
+    const PRODUCT_BOUNDS = {
+      'education':        { min: 15000,  max: 500000,  tenureMin: 6,  tenureMax: 24,  apr: 9 },
+      'higher-education': { min: 50000,  max: 2000000, tenureMin: 6,  tenureMax: 120, apr: 9 },
+      'employee':         { min: 5000,   max: 500000,  tenureMin: 1,  tenureMax: 12,  apr: 9 },
+    };
+    const PRODUCT_LABEL = {
+      'education': 'Education Loan',
+      'higher-education': 'Higher Education Loan',
+      'employee': 'Employee Loan',
+    };
+
+    const productEl = form.querySelector('[name="product"]');
+    const steps = form.querySelectorAll('.apply-step[data-show-for]');
+    const offerPanel = document.getElementById('apply-offer');
+    const successPanel = document.getElementById('apply-success');
+    const submitBtn = document.getElementById('apply-submit-btn');
+    const formErrors = document.getElementById('apply-form-errors');
+    const submitErrors = document.getElementById('apply-submit-errors');
+
+    const PAN_RX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+    const MOBILE_RX = /^[6-9][0-9]{9}$/;
+    const PINCODE_RX = /^[1-9][0-9]{5}$/;
+    const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function fmtINR(n) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+    }
+
+    function showApplicableSteps() {
+      const p = productEl.value;
+      steps.forEach(step => {
+        const shown = step.getAttribute('data-show-for').split(' ').includes(p);
+        if (shown) {
+          step.removeAttribute('data-hidden');
+          step.querySelectorAll('[data-required-for]').forEach(el => {
+            if (el.getAttribute('data-required-for').split(' ').includes(p)) el.required = true;
+          });
+        } else {
+          step.setAttribute('data-hidden', 'true');
+          step.querySelectorAll('[data-required-for]').forEach(el => { el.required = false; });
+        }
+      });
+    }
+    productEl.addEventListener('change', showApplicableSteps);
+    showApplicableSteps();
+
+    // On blur, normalise PAN to uppercase
+    const panEl = form.querySelector('[name="pan"]');
+    if (panEl) panEl.addEventListener('blur', () => { panEl.value = panEl.value.trim().toUpperCase(); });
+
+    function setInvalid(el, invalid) {
+      if (invalid) el.setAttribute('aria-invalid', 'true');
+      else el.removeAttribute('aria-invalid');
+    }
+
+    function validateForm() {
+      const errors = [];
+      // Clear previous invalid markers
+      form.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+
+      const product = productEl.value;
+      if (!product) { errors.push('Please select a product.'); setInvalid(productEl, true); }
+      const bounds = PRODUCT_BOUNDS[product];
+
+      const amountEl = form.querySelector('[name="amount"]');
+      const tenureEl = form.querySelector('[name="tenure"]');
+      const amount = parseFloat(amountEl.value);
+      const tenure = parseFloat(tenureEl.value);
+
+      if (bounds) {
+        if (!(amount >= bounds.min && amount <= bounds.max)) {
+          errors.push('Loan amount for ' + PRODUCT_LABEL[product] + ' must be between ' + fmtINR(bounds.min) + ' and ' + fmtINR(bounds.max) + '.');
+          setInvalid(amountEl, true);
+        }
+        if (!(tenure >= bounds.tenureMin && tenure <= bounds.tenureMax)) {
+          errors.push('Tenure for ' + PRODUCT_LABEL[product] + ' must be between ' + bounds.tenureMin + ' and ' + bounds.tenureMax + ' months.');
+          setInvalid(tenureEl, true);
+        }
+      }
+
+      const requiredFields = [
+        ['full_name', 'Full name'], ['parent_name', "Father's / Mother's name"],
+        ['dob', 'Date of birth'], ['email', 'Email'], ['mobile', 'Mobile number'],
+        ['pan', 'PAN'], ['address_line', 'Address line'],
+        ['city', 'City'], ['state', 'State'], ['pincode', 'PIN code'],
+      ];
+      requiredFields.forEach(([name, label]) => {
+        const el = form.querySelector('[name="' + name + '"]');
+        if (!el.value.trim()) { errors.push(label + ' is required.'); setInvalid(el, true); }
+      });
+
+      // Format validation
+      const panVal = (panEl && panEl.value || '').toUpperCase();
+      if (panVal && !PAN_RX.test(panVal)) { errors.push('PAN format must be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F).'); setInvalid(panEl, true); }
+
+      const mobileEl = form.querySelector('[name="mobile"]');
+      if (mobileEl.value && !MOBILE_RX.test(mobileEl.value)) { errors.push('Mobile number must be a 10-digit Indian number starting 6–9.'); setInvalid(mobileEl, true); }
+
+      const emailEl = form.querySelector('[name="email"]');
+      if (emailEl.value && !EMAIL_RX.test(emailEl.value)) { errors.push('Please enter a valid email address.'); setInvalid(emailEl, true); }
+
+      const pinEl = form.querySelector('[name="pincode"]');
+      if (pinEl.value && !PINCODE_RX.test(pinEl.value)) { errors.push('PIN code must be a 6-digit number (not starting with 0).'); setInvalid(pinEl, true); }
+
+      // Age check: must be 18+
+      const dobEl = form.querySelector('[name="dob"]');
+      if (dobEl.value) {
+        const dob = new Date(dobEl.value);
+        const ageYears = (Date.now() - dob.getTime()) / (365.25 * 24 * 3600 * 1000);
+        if (!isFinite(ageYears) || ageYears < 18) { errors.push('Applicant must be at least 18 years old.'); setInvalid(dobEl, true); }
+      }
+
+      // Product-specific required fields
+      form.querySelectorAll('[data-required-for]').forEach(el => {
+        if (el.required && !el.value.trim()) {
+          errors.push(el.previousElementSibling && el.previousElementSibling.textContent || el.name + ' is required.');
+          setInvalid(el, true);
+        }
+      });
+
+      return errors;
+    }
+
+    function computeOffer(data) {
+      const bounds = PRODUCT_BOUNDS[data.product];
+      const amount = parseFloat(data.amount);
+      const tenure = parseFloat(data.tenure);
+      const apr = bounds.apr;                 // Indicative base rate
+      const r = apr / 12 / 100;
+      const pow = Math.pow(1 + r, tenure);
+      const emi = (amount * r * pow) / (pow - 1);
+      const ref = 'FINZ-' + Date.now().toString(36).toUpperCase().slice(-6) +
+                  '-' + Math.floor(Math.random() * 900 + 100);
+      return { amount, tenure, apr, emi, ref };
+    }
+
+    function showOffer(data) {
+      const offer = computeOffer(data);
+      offerPanel.querySelector('[data-offer="product"]').textContent = PRODUCT_LABEL[data.product];
+      offerPanel.querySelector('[data-offer="amount"]').textContent = fmtINR(offer.amount);
+      offerPanel.querySelector('[data-offer="tenure"]').textContent = offer.tenure + ' months';
+      offerPanel.querySelector('[data-offer="apr"]').textContent = offer.apr + '% p.a.';
+      offerPanel.querySelector('[data-offer="emi"]').textContent = fmtINR(Math.round(offer.emi));
+      offerPanel.querySelector('[data-offer="ref"]').textContent = offer.ref;
+      offerPanel.hidden = false;
+      offerPanel.dataset.ref = offer.ref;
+      offerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      formErrors.textContent = '';
+      const errors = validateForm();
+      if (errors.length) {
+        formErrors.textContent = errors.join(' ');
+        offerPanel.hidden = true;
+        return;
+      }
+      const data = Object.fromEntries(new FormData(form).entries());
+      showOffer(data);
+    });
+
+    form.addEventListener('reset', function () {
+      formErrors.textContent = '';
+      offerPanel.hidden = true;
+      successPanel.hidden = true;
+      setTimeout(showApplicableSteps, 0);
+    });
+
+    // Consent gating for submit button
+    const terms = document.getElementById('consent-terms');
+    const bureau = document.getElementById('consent-bureau');
+    const channels = offerPanel && offerPanel.querySelectorAll('input[name^="consent_"]');
+    function refreshSubmitState() {
+      const channelOk = Array.from(channels || []).some(c => c.checked);
+      submitBtn.disabled = !(terms && terms.checked && bureau && bureau.checked && channelOk);
+    }
+    [terms, bureau].forEach(c => c && c.addEventListener('change', refreshSubmitState));
+    if (channels) channels.forEach(c => c.addEventListener('change', refreshSubmitState));
+
+    submitBtn && submitBtn.addEventListener('click', function () {
+      submitErrors.textContent = '';
+      const data = Object.fromEntries(new FormData(form).entries());
+      const channelVals = Array.from(channels).filter(c => c.checked).map(c => c.value);
+      if (!channelVals.length) { submitErrors.textContent = 'Please pick at least one contact channel.'; return; }
+      if (!terms.checked || !bureau.checked) { submitErrors.textContent = 'Both consent boxes must be ticked.'; return; }
+
+      const ref = offerPanel.dataset.ref || '';
+      const body = [
+        'Provisional application — FinZ Finance',
+        'Reference ID: ' + ref,
+        '',
+        'Product: ' + PRODUCT_LABEL[data.product],
+        'Amount: ' + fmtINR(parseFloat(data.amount)),
+        'Tenure: ' + data.tenure + ' months',
+        'Purpose: ' + (data.purpose || '—'),
+        '',
+        'Applicant: ' + data.full_name,
+        "Father's / Mother's name: " + data.parent_name,
+        'DOB: ' + data.dob,
+        'PAN: ' + (data.pan || '').toUpperCase(),
+        'Mobile: ' + data.mobile,
+        'Email: ' + data.email,
+        '',
+        'Institute: ' + (data.institute || '—'),
+        'Course: ' + (data.course || '—'),
+        'Year of study: ' + (data.study_year || '—'),
+        'Employer: ' + (data.employer || '—'),
+        'Monthly salary: ' + (data.salary ? fmtINR(parseFloat(data.salary)) : '—'),
+        'Months at employer: ' + (data.months_at_employer || '—'),
+        '',
+        'Address: ' + data.address_line + ', ' + data.city + ', ' + data.state + ' ' + data.pincode,
+        '',
+        'Consents:',
+        '  T&C + Privacy: yes',
+        '  Indicative pre-qualification check: yes',
+        '  Contact channels: ' + channelVals.join(', '),
+        '  Timestamp: ' + new Date().toISOString(),
+      ].join('\n');
+
+      const subject = 'FinZ application — ' + PRODUCT_LABEL[data.product] + ' — ' + ref;
+      const mailto = 'mailto:customersupport@finz.finance'
+        + '?subject=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(body);
+
+      // Show success panel regardless (since mailto is fire-and-forget)
+      offerPanel.hidden = true;
+      successPanel.querySelector('[data-success-ref]').textContent = ref;
+      successPanel.hidden = false;
+      successPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Open default mail client as the submission channel (no backend on this static site)
+      window.location.href = mailto;
+    });
+  })();
+
   // Mobile compliance-ribbon marquee: wrap content in a track and clone it
   // once so the CSS animation loops seamlessly. Runs only below 720px.
   (function setupComplianceMarquee() {

@@ -573,6 +573,143 @@ tbody tr:hover { background: var(--bg-soft); }
 .legal-content ul, .legal-content ol { padding-left: 22px; margin: 0 0 1em; }
 .legal-content li { margin-bottom: 6px; }
 
+/* ---------------- Apply form ---------------- */
+.apply-wrap { max-width: 960px; margin: 0 auto; }
+.apply-form {
+  display: grid; gap: 18px; margin-top: 16px;
+}
+.apply-step {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 22px 18px;
+  background: #fff;
+}
+.apply-step legend {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 1rem;
+  padding: 0 10px;
+  background: #fff;
+}
+.apply-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.apply-field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
+.apply-field > span em { color: var(--danger); margin-left: 2px; font-style: normal; }
+.apply-field-wide { grid-column: 1 / -1; }
+.apply-field input,
+.apply-field select,
+.apply-field textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.apply-field input:focus,
+.apply-field select:focus,
+.apply-field textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(20, 169, 176, 0.18);
+}
+.apply-field input[aria-invalid="true"],
+.apply-field select[aria-invalid="true"] {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(212, 24, 61, 0.12);
+}
+.apply-actions {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  margin-top: 8px;
+}
+#apply-form-errors, #apply-submit-errors { color: var(--danger); margin: 0; }
+
+/* Provisional offer panel */
+.offer-panel {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #FFFFFF, var(--bg-soft));
+  border: 1px solid var(--teal-light);
+  box-shadow: var(--shadow);
+}
+.offer-panel.success { border-color: var(--success); }
+.offer-panel-head h2 { margin-top: 6px; }
+.offer-kv-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin: 20px 0;
+}
+.offer-kv-grid > div {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.offer-kv-grid span {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.offer-kv-grid strong {
+  font-family: var(--font-display);
+  color: var(--navy);
+  font-size: 1.05rem;
+}
+
+/* Consent block */
+.consent-block { display: grid; gap: 12px; margin-top: 12px; }
+.consent-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: 14px; color: var(--ink-soft);
+  cursor: pointer;
+}
+.consent-item input[type="checkbox"] {
+  margin-top: 3px;
+  width: 18px; height: 18px;
+  accent-color: var(--teal);
+  flex-shrink: 0;
+}
+.consent-item span em {
+  color: var(--danger);
+  font-style: normal;
+  margin-left: 2px;
+}
+.consent-channels {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  background: #fff;
+}
+.consent-channels legend {
+  font-weight: 600;
+  color: var(--navy);
+  padding: 0 6px;
+  font-size: 14px;
+}
+.consent-channels .consent-item {
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+}
+
+/* Hide apply steps that don't apply to the selected product */
+.apply-step[data-hidden] { display: none; }
+
 /* ---------------- Team / Leadership ---------------- */
 .team-grid {
   display: grid;
