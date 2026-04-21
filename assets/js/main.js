@@ -368,6 +368,7 @@
         'Consents:',
         '  T&C + Privacy: yes',
         '  Indicative pre-qualification check: yes',
+        '  Share with lending partners / DSAs: ' + (data.consent_partners === 'yes' ? 'yes' : 'no'),
         '  Contact channels: ' + channelVals.join(', '),
         '  Timestamp: ' + new Date().toISOString(),
       ].join('\n');

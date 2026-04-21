@@ -747,6 +747,12 @@ tbody tr:hover { background: var(--bg-soft); }
   font-style: normal;
   margin-left: 2px;
 }
+.consent-optional {
+  border-style: dashed;
+  background: var(--bg-soft);
+}
+.consent-optional span strong { color: var(--teal-dark); }
+
 .consent-channels {
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
