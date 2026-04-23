@@ -946,3 +946,86 @@ tbody tr:hover { background: var(--bg-soft); }
   body { color: #000; background: #fff; }
   a { color: #000; text-decoration: underline; }
 }
+
+/* ---------------- Language selector (Google Translate) ---------------- */
+.lang-selector { position: relative; display: inline-flex; align-items: center; }
+.lang-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--navy);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.lang-toggle:hover,
+.lang-toggle[aria-expanded="true"] {
+  border-color: var(--navy);
+  background: var(--bg-soft);
+}
+.lang-toggle svg { opacity: .8; }
+.lang-current { letter-spacing: .04em; }
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 60;
+}
+.lang-menu li { margin: 0; padding: 0; }
+.lang-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.lang-menu button:hover,
+.lang-menu button:focus-visible {
+  background: var(--bg-soft);
+  color: var(--navy);
+  outline: none;
+}
+
+/* Mobile: inside the hamburger menu, align to the left and span row */
+@media (max-width: 959px) {
+  .lang-selector { width: 100%; padding: 8px 12px 4px; }
+  .lang-toggle { justify-content: center; width: 100%; }
+  .lang-menu { left: 12px; right: 12px; }
+}
+
+/* Hide Google Translate's injected banner + iframe that otherwise
+   shifts the page down by 40px after translation. */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget-icon,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd,
+.goog-logo-link,
+.goog-te-gadget > span > a {
+  display: none !important;
+}
+body { top: 0 !important; }
+.goog-te-gadget { font-size: 0 !important; color: transparent !important; }
+/* Google wraps translated text in <font> tags — keep them inheriting styles */
+font[style*="vertical-align"] { vertical-align: baseline !important; background: transparent !important; }
+/* Stop Translate hover tooltip from covering content */
+.goog-tooltip, .goog-tooltip:hover, .goog-text-highlight { display: none !important; background: transparent !important; box-shadow: none !important; }

@@ -4,6 +4,132 @@
 (function () {
   'use strict';
 
+  // --- Language selector (Google Translate) ------------------------------
+  // Mounts a compact dropdown next to the Apply-Now nav CTA. Persists the
+  // user's choice via the `googtrans` cookie, which the Google widget reads
+  // on every page load — so once switched, every page stays translated
+  // until the user picks English again (or clears cookies).
+  (function setupLanguageSelector() {
+    const LANGS = [
+      { code: 'en', label: 'English' },
+      { code: 'hi', label: 'हिन्दी (Hindi)' },
+      { code: 'bn', label: 'বাংলা (Bengali)' },
+      { code: 'ta', label: 'தமிழ் (Tamil)' },
+      { code: 'te', label: 'తెలుగు (Telugu)' },
+      { code: 'mr', label: 'मराठी (Marathi)' },
+      { code: 'gu', label: 'ગુજરાતી (Gujarati)' },
+      { code: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
+      { code: 'ml', label: 'മലയാളം (Malayalam)' },
+      { code: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+      { code: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
+      { code: 'ur', label: 'اردو (Urdu)' },
+    ];
+
+    const nav = document.querySelector('.nav-links');
+    if (!nav) return;
+
+    // Read current choice from cookie (format: /en/<code>)
+    function currentLang() {
+      const m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
+      if (!m) return 'en';
+      const parts = decodeURIComponent(m[1]).split('/').filter(Boolean);
+      return parts.length >= 2 ? parts[1] : 'en';
+    }
+    function setLang(code) {
+      // Clear any existing googtrans cookie across paths and both host forms
+      const host = window.location.hostname;
+      const bases = ['', '.' + host, host];
+      bases.forEach(b => {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + (b ? '; domain=' + b : '');
+      });
+      if (code !== 'en') {
+        const value = '/en/' + code;
+        bases.forEach(b => {
+          document.cookie = 'googtrans=' + value + '; path=/' + (b ? '; domain=' + b : '');
+        });
+      }
+      // Reload so Google Translate initialises for the chosen language
+      window.location.reload();
+    }
+
+    // Build the UI
+    const wrap = document.createElement('div');
+    wrap.className = 'lang-selector notranslate';
+    wrap.translate = false;
+    wrap.setAttribute('translate', 'no');
+    wrap.innerHTML = [
+      '<button type="button" class="lang-toggle" aria-haspopup="true" aria-expanded="false">',
+      '  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">',
+      '    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>',
+      '    <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" stroke="currentColor" stroke-width="1.8"/>',
+      '  </svg>',
+      '  <span class="lang-current">EN</span>',
+      '  <span aria-hidden="true">▾</span>',
+      '</button>',
+      '<ul class="lang-menu" role="menu" hidden>',
+      LANGS.map(l => (
+        '<li role="none"><button type="button" role="menuitem" data-lang="' + l.code + '">' + l.label + '</button></li>'
+      )).join(''),
+      '</ul>',
+      // hidden element Google's widget will mount into
+      '<div id="google_translate_element" style="display:none"></div>',
+    ].join('');
+
+    // Insert before the Apply-Now CTA where possible, else append
+    const cta = nav.querySelector('.nav-cta');
+    if (cta) nav.insertBefore(wrap, cta);
+    else nav.appendChild(wrap);
+
+    // Reflect current selection in the toggle label
+    const cur = currentLang();
+    const labelEl = wrap.querySelector('.lang-current');
+    labelEl.textContent = cur.toUpperCase();
+
+    // Toggle dropdown
+    const toggleBtn = wrap.querySelector('.lang-toggle');
+    const menu = wrap.querySelector('.lang-menu');
+    function closeMenu() {
+      menu.hidden = true;
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+    toggleBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const open = menu.hidden;
+      menu.hidden = !open;
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) closeMenu();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    // Apply selection
+    menu.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-lang]');
+      if (!btn) return;
+      setLang(btn.getAttribute('data-lang'));
+    });
+
+    // Load Google Translate element.js lazily — only when there is a non-EN
+    // selection (avoids Google's iframe/banner on the default English page).
+    if (cur !== 'en') {
+      window.googleTranslateElementInit = function () {
+        /* global google */
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          autoDisplay: false,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        }, 'google_translate_element');
+      };
+      const s = document.createElement('script');
+      s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  })();
+
   // Mobile nav toggle
   const toggle = document.querySelector('.nav-toggle');
   const links = document.querySelector('.nav-links');
