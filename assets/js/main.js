@@ -127,6 +127,25 @@
       s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
       s.async = true;
       document.head.appendChild(s);
+
+      // Aggressively suppress Google's top banner. Google sets
+      //   document.body.style.top = "40px"
+      // and inserts an iframe.goog-te-banner-frame after init. CSS alone
+      // can't beat the inline JS-set style on body.top, so we observe the
+      // body's style attribute and reset it, and remove the iframe when
+      // it appears.
+      const stripBanner = function () {
+        document.querySelectorAll('iframe.goog-te-banner-frame, .goog-te-banner-frame, .skiptranslate.goog-te-banner-frame').forEach(function (el) { el.remove(); });
+        if (document.body && document.body.style.top) { document.body.style.top = ''; }
+        if (document.documentElement && document.documentElement.style.top) { document.documentElement.style.top = ''; }
+      };
+      // Run a few times in the first ~2s to catch every Google paint
+      [0, 50, 200, 500, 1000, 2000, 4000].forEach(function (ms) { setTimeout(stripBanner, ms); });
+      // Then keep watching for the rest of the session
+      try {
+        const mo = new MutationObserver(stripBanner);
+        mo.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+      } catch (_) { /* old browsers — the timeouts above already covered it */ }
     }
   })();
 

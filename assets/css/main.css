@@ -1015,16 +1015,33 @@ tbody tr:hover { background: var(--bg-soft); }
 
 /* Hide Google Translate's injected banner + iframe that otherwise
    shifts the page down by 40px after translation. */
+iframe.goog-te-banner-frame,
+iframe.skiptranslate,
+.goog-te-banner-frame,
 .goog-te-banner-frame.skiptranslate,
-.goog-te-gadget-icon,
 .goog-te-balloon-frame,
+.goog-te-spinner-pos,
+#goog-gt-tt,
 .VIpgJd-ZVi9od-l4eHX-hSRGPd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe-OiiCO {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+/* Google sets body.style.top = "40px" via JS; pin to 0 here and
+   defensively in JS via a MutationObserver. */
+html, body, body.translated-ltr, body.translated-rtl {
+  top: 0 !important;
+  position: static !important;
+}
 .goog-logo-link,
+.goog-te-gadget-icon,
 .goog-te-gadget > span > a {
   display: none !important;
 }
-body { top: 0 !important; }
-.goog-te-gadget { font-size: 0 !important; color: transparent !important; }
+.goog-te-gadget { font-size: 0 !important; color: transparent !important; height: 0 !important; }
 /* Google wraps translated text in <font> tags — keep them inheriting styles */
 font[style*="vertical-align"] { vertical-align: baseline !important; background: transparent !important; }
 /* Stop Translate hover tooltip from covering content */
