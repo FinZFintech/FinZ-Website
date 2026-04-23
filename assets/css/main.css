@@ -887,6 +887,33 @@ tbody tr:hover { background: var(--bg-soft); }
   border-radius: var(--radius-sm); font-size: 12px; color: #AEB7CD; line-height: 1.6;
 }
 
+/* Social icons in the footer */
+.social-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.social-links a {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #C6CDE0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background .15s ease, color .15s ease, transform .15s ease, border-color .15s ease;
+}
+.social-links a:hover,
+.social-links a:focus-visible {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+.social-links svg { display: block; width: 18px; height: 18px; }
+
 /* ---------------- Utility ---------------- */
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
